@@ -5,6 +5,8 @@
 The agent would receive a user prompt to inquire some aspects about one specific company across certain periods.<br><br>
 After analyzing the user prompt, the agent should specify key parameters for collecing files with a tool and a specific prompt to apply on collected filings.<br><br>
 
+working on finding stock ticker with company name. <br><br>
+
 ## Use Tools
 
 A tool would be given to the agent for fetching HKEX stockId with stock ticker first. <br>
