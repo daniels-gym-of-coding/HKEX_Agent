@@ -18,8 +18,3 @@ __pycache__/
 
 # Filings
 filings/
-
-# Generated Summaries
-draft_summary.md
-final_summary.md
-
