@@ -1,5 +1,9 @@
 # HKEX_Agent  
 
+## Prerequisites
+
+LLM API Key, Tavily API Key
+
 ## Analyze Request
 
 The agent would receive a user prompt stored in <research_topic.txt> to inquire some aspects about one specific company across certain periods.<br><br>
