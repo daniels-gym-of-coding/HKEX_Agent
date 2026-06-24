@@ -22,8 +22,7 @@ A tool would be given to the agent for fetching HKEX filings with stockId, start
 
 for each file, the specific prompt would be used to extract certain information.<br> 
 
-## Summarize, Reflect, Respond
+## Summarize, Reflect
 
 The agent then would collect all those extracted information and summarize.<br>
-The agent would reflect on the draft summary and revise.<br>
-The agent would give a final response to the user.<br>
+The agent would reflect on the draft summary and generate the final summary.<br>
