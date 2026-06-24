@@ -11,8 +11,8 @@ https://www.hkexnews.hk/index.htm
 ## Analyze Request
 
 The agent would receive a user prompt stored in <research_topic.txt> to inquire some aspects about one specific company across certain periods.<br><br>
-After analyzing the user prompt, the agent should specify key parameters for collecing files with a tool and a specific prompt to apply on collected filings.<br><br>
-Tools would be given to the agent for fetching ticker with company name then fetching HKEX stockId with stock ticker. <br>
+After analyzing the user prompt, the agent should specify key parameters for collecing files  and a specific prompt to apply on collected filings.<br><br>
+The agent would fetching stock ticker with company name then fetch HKEX stockId with the stock ticker. <br>
 
 ## Fetch Filings
 
