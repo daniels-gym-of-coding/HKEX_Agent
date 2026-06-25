@@ -38,7 +38,7 @@ def get_hkex_ticker(company_name: str) -> str:
         raise ValueError("Tavily API key is missing in the environment.")
 
     # 1. Execute Tavily Search
-    search = TavilySearch(max_results=3)
+    search = TavilySearch(max_results=10)
     query = f"{company_name} 5-digit HKEX stock ticker code"
     try:
         search_results = search.invoke({"query": query})
