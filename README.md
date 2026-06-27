@@ -1,5 +1,9 @@
 # HKEX_Agent  
 
+## To Refine
+
+to check my notepad for thoughts on improvements
+
 ## Prerequisites
 
 LLM API Key, Tavily API Key
