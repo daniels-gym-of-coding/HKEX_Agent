@@ -25,6 +25,7 @@ def analyze_user_prompt(prompt: str) -> dict:
             model=os.getenv("LLM_MODEL"),
             api_key=os.getenv("OPENAI_API_KEY"),
             base_url=os.getenv("OPENAI_BASE_URL"),
+            temperature=0.0
         )
         
         # Initialize JsonOutputParser
