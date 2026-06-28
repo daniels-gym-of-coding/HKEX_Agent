@@ -1,9 +1,5 @@
 # HKEX_Agent  
 
-## To Refine
-
-to check my notepad for thoughts on improvements
-
 ## Prerequisites
 
 LLM API Key, Tavily API Key
@@ -31,3 +27,5 @@ for each file, the specific prompt would be used to extract certain information.
 
 The agent then would collect all those extracted information and summarize.<br>
 The agent would reflect on the draft summary and generate the final summary.<br>
+
+## Doubao Instructions
