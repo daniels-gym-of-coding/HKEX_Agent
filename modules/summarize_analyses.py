@@ -70,11 +70,12 @@ def summarize_analyses(
         temperature=0.0
     )
 
-    # Decouple prompt into components as required by project rules
     core_instruction = (
         "You are a professional research analyst.\n"
         "Your task is to review a series of individual filing analyses for a company and synthesize them into a single, "
-        "cohesive, high-level summary report."
+        "cohesive, high-level summary report.\n"
+        "CRITICAL FACTUALITY RULE: Base your summary strictly and exclusively on the provided Individual Filing Analyses. "
+        "Do not assume, speculate, or introduce any information not explicitly present in the input text."
     )
 
     output_format_instruction = (
@@ -82,7 +83,7 @@ def summarize_analyses(
         "1. # Executive Summary Report for {company_name}\n"
         "2. ## Executive Summary: A high-level assessment of the overall findings and key takeaways based on all filings.\n"
         "3. ## Consolidated Summary Table: A table listing the key topics/criteria analyzed, their consolidated assessments or status, and a brief rationale.\n"
-        "4. ## Detailed Findings: Group and synthesize all findings into the key thematic categories or criteria that were analyzed in the individual filings. Under each category, consolidate the findings from all filings, quoting or referencing specific filing dates and details where appropriate.\n"
+        "4. ## Detailed Findings: Group and synthesize all findings into the key thematic categories or criteria that were analyzed in the individual filings. Under each category, consolidate the findings from all filings. Every point must include a citation to its source file name (e.g., [File: 12219063-analysis.txt]) and filing date to ensure 100% traceability.\n"
         "5. ## Conclusion and Recommendations: Next steps or key areas that require close monitoring.\n\n"
         "Ensure the output is written in a professional tone in English or Chinese depending on the dominant language of the inputs."
     )

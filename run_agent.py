@@ -68,6 +68,7 @@ print("\nRunning reflection and generating final summary...")
 reflect_on_summary(
     company_name=parsed.get("company_name", "the company"),
     draft_summary_path="draft_summary.md",
+    filings_dir="filings",
     output_filename="final_summary.md"
 )
 
