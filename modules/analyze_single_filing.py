@@ -63,61 +63,27 @@ def analyze_single_filing(
         print(f"[{idx}/{total}] Warning: No text extracted from '{pdf_filename}'. Skipping.")
         return
 
-    # Truncate content to a safe limit to prevent context length errors (e.g. 150,000 chars)
-    max_chars = 150000
-    if len(raw_text) > max_chars:
-        print(f"[{idx}/{total}] Filing text length ({len(raw_text)} chars) exceeds limit. Truncating to first {max_chars} chars.")
-        raw_text = raw_text[:max_chars]
+    from modules.document_processor import split_text_semantically, run_stateful_map_reduce
 
-    # Initialize LangChain LLM and parser
-    llm = ChatOpenAI(
-        model=model,
-        api_key=api_key,
-        base_url=base_url,
-        temperature=0.0
-    )
-
-    # Decouple prompt into several parts as required by rules
-    core_instruction = (
-        "You are an expert financial analyst. Your task is to analyze the text content of a Hong Kong Exchange filing "
-        "and execute the user's specific analysis requirements."
-    )
-
-    output_format_instruction = (
-        "Provide your analysis summary clearly formatted in Markdown."
-    )
-
-    input_information = (
-        "Filing Name: {filing_name}\n"
-        "Filing Date: {filing_date}\n\n"
-        "Filing Text Content:\n{filing_text}\n\n"
-        "User Analysis Request:\n{analysis_prompt}"
-    )
-
-    prompt_template = ChatPromptTemplate.from_messages([
-        (
-            "system",
-            f"[CORE INSTRUCTION]\n{core_instruction}\n\n"
-            f"[OUTPUT FORMAT INSTRUCTION]\n{output_format_instruction}"
-        ),
-        (
-            "user",
-            f"[INPUT INFORMATION]\n{input_information}"
-        )
-    ])
-
-    chain = prompt_template | llm | StrOutputParser()
-
-    # Call LLM chain
+    # Split text into semantic chunks under 100,000 characters
+    chunks = split_text_semantically(raw_text, max_chars=100000)
+    
+    # Process sequentially using stateful map-reduce
     try:
-        summary = chain.invoke({
-            "filing_name": filing_name,
-            "filing_date": filing_date,
-            "filing_text": raw_text,
-            "analysis_prompt": analysis_prompt
-        })
+        summary = run_stateful_map_reduce(
+            chunks=chunks,
+            filing_name=filing_name,
+            filing_date=filing_date,
+            analysis_prompt=analysis_prompt,
+            model=model,
+            api_key=api_key,
+            base_url=base_url,
+            idx=idx,
+            total=total,
+            pdf_filename=pdf_filename
+        )
     except Exception as e:
-        print(f"[{idx}/{total}] Error calling LLM for '{pdf_filename}': {e}. Skipping.")
+        print(f"[{idx}/{total}] Error during stateful map-reduce for '{pdf_filename}': {e}. Skipping.")
         return
 
     # Write output file

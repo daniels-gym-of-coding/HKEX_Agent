@@ -34,7 +34,9 @@ def analyze_user_prompt(prompt: str) -> dict:
         # Decouple prompt template into components
         core_instruction = (
             "You are a specialized assistant that extracts key research parameters from a user prompt "
-            "and formulates a prompt to apply on each individual collected company filing on the Hong Kong Exchange."
+            "and formulates a prompt to apply on each individual collected company filing on the Hong Kong Exchange. "
+            "The generated prompt must enforce that the analysis relies strictly on ground truths in the filings and "
+            "is fully traceable back to specific sources/sections within the filings."
         )
         
         output_format_instruction = (
@@ -42,7 +44,7 @@ def analyze_user_prompt(prompt: str) -> dict:
             "- \"company_name\": Name of the specific company to research.\n"
             "- \"start_date\": The start date of research in YYYYMMDD format.\n"
             "- \"end_date\": The end date of research in YYYYMMDD format. Default to {today_str} if not specified.\n"
-            "- \"filing_analyze_prompt\": A formulated prompt targeting the user's specific questions or criteria to be applied when analyzing each individual collected company filing.\n\n"
+            "- \"filing_analyze_prompt\": A formulated prompt targeting the user's specific questions or criteria to be applied when analyzing each individual collected company filing. This formulated prompt MUST explicitly instruct to strictly rely on ground truths in the filings (avoiding speculation or extrapolation) and trace all analyzed points back to specific sources (e.g., page numbers or section names) within the filings.\n\n"
             "Ensure the output is valid JSON."
         )
         
