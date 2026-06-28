@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-LLM API Key, Tavily API Key
+Zhipu API Key, Gemini API Key, Tavily API Key
 
 ## Data Source
 
