@@ -46,11 +46,12 @@ def summarize_analyses(
     # Sort files by name/id to keep some order
     for file_path in sorted(analysis_files):
         filename = os.path.basename(file_path)
+        original_pdf = filename.replace("-analysis.txt", ".pdf")
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read().strip()
                 if content:
-                    concatenated_parts.append(f"### File: {filename}\n{content}\n")
+                    concatenated_parts.append(f"### Original Filing: {original_pdf}\n{content}\n")
         except Exception as e:
             print(f"Warning: Failed to read {filename}: {e}")
 
@@ -83,7 +84,7 @@ def summarize_analyses(
         "1. # Executive Summary Report for {company_name}\n"
         "2. ## Executive Summary: A high-level assessment of the overall findings and key takeaways based on all filings.\n"
         "3. ## Consolidated Summary Table: A table listing the key topics/criteria analyzed, their consolidated assessments or status, and a brief rationale.\n"
-        "4. ## Detailed Findings: Group and synthesize all findings into the key thematic categories or criteria that were analyzed in the individual filings. Under each category, consolidate the findings from all filings. Every point must include a citation to its source file name (e.g., [File: 12219063-analysis.txt]) and filing date to ensure 100% traceability.\n"
+        "4. ## Detailed Findings: Group and synthesize all findings into the key thematic categories or criteria that were analyzed in the individual filings. Under each category, consolidate the findings from all filings. Every point must include a citation to the original filing (e.g., [Filing: 12219063.pdf] or the actual filing name like \"Annual Report 2023\") and its filing date to ensure 100% traceability to the original source filings.\n"
         "5. ## Conclusion and Recommendations: Next steps or key areas that require close monitoring.\n\n"
         "Ensure the output is written in a professional tone in English or Chinese depending on the dominant language of the inputs."
     )
