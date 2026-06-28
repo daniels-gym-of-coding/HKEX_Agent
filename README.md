@@ -22,6 +22,8 @@ The agent would download HKEX filings in the list. <br>
 ## Analyze Filings
 
 for each file, the specific prompt would be used to extract certain information.<br> 
+a second LLM model would be used if the primary model fails.<br>
+text chunking and stateful mapreduce would be used for big pdf files.<br>
 
 ## Summarize, Reflect
 
