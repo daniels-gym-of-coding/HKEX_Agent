@@ -63,14 +63,14 @@ def analyze_single_filing(
         print(f"[{idx}/{total}] Warning: No text extracted from '{pdf_filename}'. Skipping.")
         return
 
-    from modules.document_processor import split_text_semantically, run_stateful_map_reduce
+    from modules.document_processor import split_text_semantically, run_parallel_map_reduce
 
     # Split text into semantic chunks under 100,000 characters
     chunks = split_text_semantically(raw_text, max_chars=100000)
     
-    # Process sequentially using stateful map-reduce
+    # Process concurrently using parallel map-reduce
     try:
-        summary = run_stateful_map_reduce(
+        summary = run_parallel_map_reduce(
             chunks=chunks,
             filing_name=filing_name,
             filing_date=filing_date,
@@ -83,7 +83,7 @@ def analyze_single_filing(
             pdf_filename=pdf_filename
         )
     except Exception as e:
-        print(f"[{idx}/{total}] Error during stateful map-reduce for '{pdf_filename}': {e}. Skipping.")
+        print(f"[{idx}/{total}] Error during parallel map-reduce for '{pdf_filename}': {e}. Skipping.")
         return
 
     # Write output file

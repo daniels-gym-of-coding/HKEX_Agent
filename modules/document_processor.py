@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import ThreadPoolExecutor
 from langchain_core.prompts import ChatPromptTemplate
 from modules.llm_client import invoke_llm_with_fallback
 
@@ -55,7 +56,7 @@ def split_text_semantically(text: str, max_chars: int = 100000) -> list[str]:
         
     return chunks
 
-def run_stateful_map_reduce(
+def run_parallel_map_reduce(
     chunks: list[str],
     filing_name: str,
     filing_date: str,
@@ -68,57 +69,66 @@ def run_stateful_map_reduce(
     pdf_filename: str
 ) -> str:
     """
-    Processes document chunks sequentially, updating a running analysis state
-    with failsafe support on each step.
+    Processes document chunks in parallel (Map phase), then combines the
+    results into a single consolidated analysis report (Reduce phase).
     """
     num_chunks = len(chunks)
-    previous_state = "No previous analysis state. This is the first chunk of the document."
+    if num_chunks == 0:
+        return "No text content found to analyze."
     
-    # Decouple prompt into several parts as required by rules
-    core_instruction = (
-        "You are an expert financial analyst. Your task is to analyze the text content of a Hong Kong Exchange filing "
-        "and execute the user's specific analysis requirements.\n"
-        "You are processing the document in sequential chunks. You must update and refine the running analysis report "
-        "based on the new chunk of text while retaining and integrating all previous analysis findings. "
-        "Make sure to avoid speculation or extrapolation, relying strictly on ground truths in the text."
+    print(f"[{idx}/{total}] Map Phase: Processing {num_chunks} chunks in parallel for '{pdf_filename}'...")
+    
+    # Decouple prompts into core_instruction, output_format_instruction, input_information
+    map_core_instruction = (
+        "You are an expert financial analyst. Your task is to analyze the text content of a segment (chunk) "
+        "of a Hong Kong Exchange filing and extract information matching the user's specific analysis request.\n"
+        "Rely strictly on ground truths in the text. Do not extrapolate, speculate, or make assumptions."
     )
-
-    output_format_instruction = (
-        "Provide your updated, consolidated analysis summary clearly formatted in Markdown.\n"
-        "Ensure all findings from the previous summary state and the new text are integrated. "
-        "Maintain professional structure and clear referencing of sources/sections from the text."
+    map_output_format = (
+        "Provide your analysis summary clearly formatted in Markdown.\n"
+        "Focus only on findings relevant to the user's request. If the chunk does not contain relevant information, "
+        "simply state that no relevant information was found in this section."
     )
-
-    input_information = (
+    map_input_info = (
         "Filing Name: {filing_name}\n"
         "Filing Date: {filing_date}\n\n"
-        "[PREVIOUS RUNNING ANALYSIS STATE]\n{previous_state}\n\n"
-        "[NEW FILING TEXT CHUNK]\n{chunk_text}\n\n"
+        "[FILING TEXT SEGMENT]\n{chunk_text}\n\n"
         "User Analysis Request:\n{analysis_prompt}"
     )
-
-    prompt_template = ChatPromptTemplate.from_messages([
-        (
-            "system",
-            f"[CORE INSTRUCTION]\n{core_instruction}\n\n"
-            f"[OUTPUT FORMAT INSTRUCTION]\n{output_format_instruction}"
-        ),
-        (
-            "user",
-            f"[INPUT INFORMATION]\n{input_information}"
-        )
+    
+    map_prompt_template = ChatPromptTemplate.from_messages([
+        ("system", f"[CORE INSTRUCTION]\n{map_core_instruction}\n\n[OUTPUT FORMAT INSTRUCTION]\n{map_output_format}"),
+        ("user", f"[INPUT INFORMATION]\n{map_input_info}")
     ])
-
-    for chunk_idx, chunk_text in enumerate(chunks, 1):
-        print(f"[{idx}/{total}] Processing chunk {chunk_idx}/{num_chunks} for '{pdf_filename}'...")
-        
-        # Invoke the failsafe LLM caller
-        previous_state = invoke_llm_with_fallback(
-            prompt_template=prompt_template,
+    
+    reduce_core_instruction = (
+        "You are an expert financial analyst. Your task is to review multiple individual chunk analyses "
+        "from a Hong Kong Exchange filing and consolidate them into a single, cohesive, comprehensive, "
+        "and well-structured final report that answers the user's analysis request.\n"
+        "Ensure no duplicated findings, organize findings logically, and maintain strict fidelity to the raw data."
+    )
+    reduce_output_format = (
+        "Provide a single, consolidated analysis report in Markdown. "
+        "Organize it with clear headings, bullet points, and references to sections/topics as appropriate."
+    )
+    reduce_input_info = (
+        "Filing Name: {filing_name}\n"
+        "Filing Date: {filing_date}\n\n"
+        "[INDIVIDUAL CHUNK ANALYSES]\n{chunk_analyses}\n\n"
+        "User Analysis Request:\n{analysis_prompt}"
+    )
+    
+    reduce_prompt_template = ChatPromptTemplate.from_messages([
+        ("system", f"[CORE INSTRUCTION]\n{reduce_core_instruction}\n\n[OUTPUT FORMAT INSTRUCTION]\n{reduce_output_format}"),
+        ("user", f"[INPUT INFORMATION]\n{reduce_input_info}")
+    ])
+    
+    def map_chunk(chunk_idx: int, chunk_text: str) -> str:
+        return invoke_llm_with_fallback(
+            prompt_template=map_prompt_template,
             input_vars={
                 "filing_name": filing_name,
                 "filing_date": filing_date,
-                "previous_state": previous_state,
                 "chunk_text": chunk_text,
                 "analysis_prompt": analysis_prompt
             },
@@ -130,4 +140,43 @@ def run_stateful_map_reduce(
             pdf_filename=f"{pdf_filename} (Chunk {chunk_idx}/{num_chunks})"
         )
         
-    return previous_state
+    map_results = [None] * num_chunks
+    with ThreadPoolExecutor(max_workers=min(num_chunks, 8)) as executor:
+        futures = {
+            executor.submit(map_chunk, chunk_idx, chunk_text): chunk_idx - 1
+            for chunk_idx, chunk_text in enumerate(chunks, 1)
+        }
+        for future in futures:
+            chunk_pos = futures[future]
+            try:
+                map_results[chunk_pos] = future.result()
+            except Exception as e:
+                print(f"[{idx}/{total}] Error mapping chunk {chunk_pos+1} for '{pdf_filename}': {e}")
+                map_results[chunk_pos] = f"Error: Failed to analyze Chunk {chunk_pos+1}."
+                
+    print(f"[{idx}/{total}] Reduce Phase: Consolidating analyses for '{pdf_filename}'...")
+    
+    formatted_analyses = ""
+    for i, res in enumerate(map_results, 1):
+        formatted_analyses += f"--- Chunk {i} Analysis ---\n{res}\n\n"
+        
+    try:
+        final_summary = invoke_llm_with_fallback(
+            prompt_template=reduce_prompt_template,
+            input_vars={
+                "filing_name": filing_name,
+                "filing_date": filing_date,
+                "chunk_analyses": formatted_analyses,
+                "analysis_prompt": analysis_prompt
+            },
+            model=model,
+            api_key=api_key,
+            base_url=base_url,
+            idx=idx,
+            total=total,
+            pdf_filename=pdf_filename
+        )
+        return final_summary
+    except Exception as e:
+        print(f"[{idx}/{total}] Error during Reduce phase for '{pdf_filename}': {e}")
+        raise e
