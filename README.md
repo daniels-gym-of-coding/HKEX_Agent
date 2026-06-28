@@ -29,7 +29,3 @@ text chunking and stateful mapreduce would be used for big pdf files.<br>
 
 The agent then would collect all those extracted information and summarize.<br>
 The agent would reflect on the draft summary and generate the final summary.<br>
-
-## Doubao Instructions
-
-根据这份调研报告完成这些任务：1.决定生成几张小红书图片，图片数量应不超过九张，生成这些小红书图片，小红书图片风格采用高端咨询公司风格；2.生成小红书笔记标题，标题不应超过10字；3.生成小红书笔记正文，正文不应超过500字。
