@@ -70,7 +70,10 @@ def reflect_on_summary(
                 with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read().strip()
                     if content:
-                        concatenated_parts.append(f"### Original Filing: {original_pdf}\n{content}\n")
+                        concatenated_parts.append(
+                            f"### Original Filing: {original_pdf}\n"
+                            f"{content}\n"
+                        )
             except Exception as e:
                 print(f"Warning: Failed to read {filename} during reflection: {e}")
         analyses_text = "\n" + ("-" * 60 + "\n").join(concatenated_parts)
@@ -91,7 +94,8 @@ def reflect_on_summary(
         "Your task is to perform reflection, fact-checking, and self-correction on a draft research summary report.\n"
         "Verify every claim in the draft report against the original Individual Filing Analyses (Ground Truth). Correct any "
         "hallucinations, omissions, or logical inconsistencies, and verify that all source citations match "
-        "the original filings (e.g., [Filing: 12219063.pdf] or the actual filing name like \"Annual Report 2023\") from which the information was extracted. "
+        "the original filings as human-readable Filing Name and Filing Date to ensure 100% understandable "
+        "traceability (e.g., \"2025年年報\" (Date: 2026-04-24)). Do not allow digit IDs, analysis file names, or URL links in the citation text.\n"
         "Generate a polished, final summary report that is 100% accurate to the source material, fully traceable to the original "
         "filings, and audit-ready."
     )
@@ -104,7 +108,8 @@ def reflect_on_summary(
         "4. ## Detailed Findings\n"
         "5. ## Conclusion and Recommendations\n\n"
         "Refine the language, correct any logical inconsistencies, ensure risk ratings match the analysis details, "
-        "verify that every detailed finding is traced back to its original filing (e.g., [Filing: 12219063.pdf] or the actual filing name), and format tables and quotes cleanly."
+        "verify that every detailed finding is traced back to its original filing using a human-readable Filing Name and Filing Date "
+        "(e.g., \"2025年年報\" (Date: 2026-04-24)), and format tables and quotes cleanly."
     )
 
     input_information = (

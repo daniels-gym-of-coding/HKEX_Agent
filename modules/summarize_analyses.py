@@ -51,7 +51,10 @@ def summarize_analyses(
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read().strip()
                 if content:
-                    concatenated_parts.append(f"### Original Filing: {original_pdf}\n{content}\n")
+                    concatenated_parts.append(
+                        f"### Original Filing: {original_pdf}\n"
+                        f"{content}\n"
+                    )
         except Exception as e:
             print(f"Warning: Failed to read {filename}: {e}")
 
@@ -84,7 +87,7 @@ def summarize_analyses(
         "1. # Executive Summary Report for {company_name}\n"
         "2. ## Executive Summary: A high-level assessment of the overall findings and key takeaways based on all filings.\n"
         "3. ## Consolidated Summary Table: A table listing the key topics/criteria analyzed, their consolidated assessments or status, and a brief rationale.\n"
-        "4. ## Detailed Findings: Group and synthesize all findings into the key thematic categories or criteria that were analyzed in the individual filings. Under each category, consolidate the findings from all filings. Every point must include a citation to the original filing (e.g., [Filing: 12219063.pdf] or the actual filing name like \"Annual Report 2023\") and its filing date to ensure 100% traceability to the original source filings.\n"
+        "4. ## Detailed Findings: Group and synthesize all findings into the key thematic categories or criteria that were analyzed in the individual filings. Under each category, consolidate the findings from all filings. Every point must include a citation referencing the human-readable Filing Name and Filing Date (which are specified at the start of each filing's text, e.g., \"2025年年報\" (Date: 2026-04-24)) to ensure 100% understandable traceability. Do not use digit IDs or analysis file names in the citation text.\n"
         "5. ## Conclusion and Recommendations: Next steps or key areas that require close monitoring.\n\n"
         "Ensure the output is written in a professional tone in English or Chinese depending on the dominant language of the inputs."
     )
