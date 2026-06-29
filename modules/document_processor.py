@@ -154,7 +154,11 @@ def run_parallel_map_reduce(
                 print(f"[{idx}/{total}] Error mapping chunk {chunk_pos+1} for '{pdf_filename}': {e}")
                 map_results[chunk_pos] = f"Error: Failed to analyze Chunk {chunk_pos+1}."
                 
+    if num_chunks == 1:
+        return map_results[0]
+        
     print(f"[{idx}/{total}] Reduce Phase: Consolidating analyses for '{pdf_filename}'...")
+
     
     formatted_analyses = ""
     for i, res in enumerate(map_results, 1):
