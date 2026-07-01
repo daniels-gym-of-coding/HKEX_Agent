@@ -60,7 +60,7 @@ def download_hkex_filings(csv_path: str = "filings/filings.csv") -> None:
         dest_path = os.path.join(filings_dir, filename)
 
         if os.path.exists(dest_path) and os.path.getsize(dest_path) > 0:
-            print(f"[{idx}/{total}] {filename} already exists. Skipping download.")
+            print(f"[{idx}/{total}] [BYPASSED] {filename} already exists. Skipping download.")
             continue
 
         print(f"[{idx}/{total}] Downloading {filename}...")
