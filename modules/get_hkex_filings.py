@@ -36,7 +36,7 @@ def get_hkex_filings(stock_id: str, start_date: str, end_date: str) -> list:
 
     url = (
         f"https://www1.hkexnews.hk/search/titleSearchServlet.do?"
-        f"sortDir=0&sortByOptions=DateTime&category=0&market=SEHK&lang=zh&rowRange=1000"
+        f"sortDir=0&sortByOptions=DateTime&category=0&market=SEHK&lang=en&rowRange=1000"
         f"&stockId={stock_id}&fromDate={start_date}&toDate={end_date}"
     )
 
